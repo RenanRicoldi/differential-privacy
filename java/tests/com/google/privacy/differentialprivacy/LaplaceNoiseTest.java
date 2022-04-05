@@ -38,6 +38,12 @@ public final class LaplaceNoiseTest {
   private static final int DEFAULT_L_0_SENSITIVITY = 1;
   private static final double DEFAULT_L_INF_SENSITIVITY = 1.0;
 
+  /** Returns variance of Laplace noise for given parameters. */
+  double getVariance(double epsilon, int l0sensitivty, double lInfSensitivty) {
+    double l1Sensitivity = l0sensitivty * lInfSensitivty;
+    return 2 * Math.pow(l1Sensitivity / epsilon, 2);
+  }
+
   @Test
   public void addNoise_hasAccurateStatisticalProperties() {
     ImmutableList.Builder<Double> samples = ImmutableList.builder();
@@ -52,7 +58,8 @@ public final class LaplaceNoiseTest {
     }
     Stats stats = Stats.of(samples.build());
 
-    double variance = 2.0 / (LN_3 * LN_3);
+    double variance =
+        getVariance(DEFAULT_EPSILON, DEFAULT_L_0_SENSITIVITY, DEFAULT_L_INF_SENSITIVITY);
     // The tolerance is chosen according to the 99.9995% quantile of the anticipated distributions
     // of the sample mean and variance. Thus, the test falsely rejects with a probability of 10^-5.
     double sampleMeanTolerance = 4.41717 * Math.sqrt(variance / NUM_SAMPLES);
@@ -76,7 +83,8 @@ public final class LaplaceNoiseTest {
     Stats stats = Stats.of(samples.build());
 
     double mean = 42.0;
-    double variance = 2.0 / (LN_3 * LN_3);
+    double variance =
+        getVariance(DEFAULT_EPSILON, DEFAULT_L_0_SENSITIVITY, DEFAULT_L_INF_SENSITIVITY);
     // The tolerance is chosen according to the 99.9995% quantile of the anticipated distributions
     // of the sample mean and variance. Thus, the test falsely rejects with a probability of 10^-5.
     double sampleMeanTolerance = 4.41717 * Math.sqrt(variance / NUM_SAMPLES);
@@ -99,7 +107,7 @@ public final class LaplaceNoiseTest {
     }
     Stats stats = Stats.of(samples.build());
 
-    double variance = 2.0 / (4.0 * LN_3 * LN_3);
+    double variance = getVariance(DEFAULT_EPSILON, DEFAULT_L_0_SENSITIVITY, 0.5);
     // The tolerance is chosen according to the 99.9995% quantile of the anticipated distributions
     // of the sample mean and variance. Thus, the test falsely rejects with a probability of 10^-5.
     double sampleMeanTolerance = 4.41717 * Math.sqrt(variance / NUM_SAMPLES);
@@ -122,7 +130,7 @@ public final class LaplaceNoiseTest {
     }
     Stats stats = Stats.of(samples.build());
 
-    double variance = 2.0 / (4.0 * LN_3 * LN_3);
+    double variance = getVariance(2 * LN_3, DEFAULT_L_0_SENSITIVITY, DEFAULT_L_INF_SENSITIVITY);
     // The tolerance is chosen according to the 99.9995% quantile of the anticipated distributions
     // of the sample mean and variance. Thus, the test falsely rejects with a probability of 10^-5.
     double sampleMeanTolerance = 4.41717 * Math.sqrt(variance / NUM_SAMPLES);
@@ -146,7 +154,7 @@ public final class LaplaceNoiseTest {
     Stats stats = Stats.of(samples.build());
 
     double mean = 0.0;
-    double approxVariance = 1.75;
+    double approxVariance = getVariance(DEFAULT_EPSILON, DEFAULT_L_0_SENSITIVITY, 1);
     // The tolerance is chosen according to the 99.9995% quantile of the anticipated distributions
     // of the sample mean and variance. Thus, the test falsely rejects with a probability of 10^-5.
     double sampleMeanTolerance = 4.41717 * Math.sqrt(approxVariance / NUM_SAMPLES);
@@ -387,7 +395,7 @@ public final class LaplaceNoiseTest {
   }
 
   @Test
-  public void getMechanismType_returnsGaussian() {
+  public void getMechanismType_returnsLaplace() {
     assertThat(NOISE.getMechanismType()).isEqualTo(LAPLACE);
   }
 

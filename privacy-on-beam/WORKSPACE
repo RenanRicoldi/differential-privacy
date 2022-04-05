@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-workspace(name = "com_google_privacy_on_beam")
+workspace(name = "com_github_google_differential_privacy_privacy_on_beam_v2")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -33,6 +33,7 @@ go_rules_dependencies()
 
 go_register_toolchains(version = "1.16.7")
 
+# Updating this to v0.24.0 breaks due to Apache Beam dependency, meaning we also cannot update io_bazel_rule_go: https://github.com/bazelbuild/bazel-gazelle/tree/v0.24.0#id5
 http_archive(
     name = "bazel_gazelle",
     sha256 = "62ca106be173579c0a167deb23358fdfe71ffa1e4cfdddf5582af26520f1c66f",
@@ -52,7 +53,7 @@ local_repository(
 )
 
 local_repository(
-    name = "com_google_go_differential_privacy",
+    name = "com_github_google_differential_privacy_go_v2",
     path = "../go",
 )
 
@@ -70,7 +71,7 @@ load(":privacy_on_beam_deps.bzl", "privacy_on_beam_deps")
 privacy_on_beam_deps()
 
 # Load Go DP library dependencies.
-load("@com_google_go_differential_privacy//:go_differential_privacy_deps.bzl", "go_differential_privacy_deps")
+load("@com_github_google_differential_privacy_go_v2//:go_differential_privacy_deps.bzl", "go_differential_privacy_deps")
 
 go_differential_privacy_deps()
 
