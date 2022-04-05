@@ -35,6 +35,22 @@ java_library(
     ],
 )
 
+java_binary(
+    name = "Main",
+    srcs = glob(["*.java"]),
+    main_class = "com.google.privacy.differentialprivacy.Main",
+    resources = glob(["*.csv"]),
+    deps = [
+        ":autovalue",
+        "@com_google_differential_privacy//proto:data-proto",
+        "@com_google_differential_privacy//proto:summary-proto",
+        "@com_google_protobuf//java/core:lite_runtime_only",
+        "@maven//:com_google_auto_value_auto_value_annotations",
+        "@maven//:com_google_guava_guava",
+    ],
+)
+
+
 java_library(
     name = "differentialprivacy",
     srcs = glob(

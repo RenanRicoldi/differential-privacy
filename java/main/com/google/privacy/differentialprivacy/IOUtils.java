@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package com.google.privacy.differentialprivacy.example;
+package com.google.privacy.differentialprivacy;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -40,14 +39,22 @@ import java.util.Map;
 class IOUtils {
 
   private static final String CSV_ITEM_SEPARATOR = ",";
+  private static final DateTimeFormatter TIME_FORMATTER =
+      new DateTimeFormatterBuilder()
+          // case insensitive
+          .parseCaseInsensitive()
+          // pattern
+          .appendPattern("h:mm:ss a")
+          // set Locale that uses "AM" and "PM"
+          .toFormatter(Locale.ENGLISH);
   private static final String CSV_HOUR_COUNT_WRITE_TEMPLATE = "%s,%d\n";
 
   private IOUtils() {}
 
-  static ImmutableSet<Ride> readRides(String fileName) {
+  static ImmutableSet<Ride> readRides(String file) {
     try {
       List<String> rideAsText =
-          Resources.readLines(Resources.getResource(fileName), UTF_8);
+          Resources.readLines(Resources.getResource(file), UTF_8);
 
       return rideAsText.stream()
           .skip(1)
@@ -58,41 +65,23 @@ class IOUtils {
     }
   }
 
-  /**      0             1           2            3                   4                      5                    6                        7                    8                 9                    10                    11       12          13        14
-   * starttime","start station id","start station name",,"bikeid","usertype","birth year","gender"
-   * -73.99400398,35305,"Subscriber",1996,2
-   */
 
   private static Ride convertLineToRide(String rideAsText) {
     Iterator<String> splitRide = Splitter.on(CSV_ITEM_SEPARATOR).split(rideAsText).iterator();
 
-    splitRide.next();
+    String rideId = splitRide.next();
 
-    LocalTime startedAt = LocalTime.parse((splitRide.next().split(" ")[1]).split("\\.")[0]);
-
-    splitRide.next();
-
-    String station = splitRide.next();
-
-    int stationId = Integer.parseInt(station.equals("NULL") ? "0" : station);
-
-    for(int i = 0; i < 7; i++) {
+    for(int i = 0; i < 3; i++) {
       splitRide.next();
     }
 
-    String bikeId = splitRide.next();
+    String stationId = splitRide.next();
 
-    String userType = splitRide.next();
-
-    LocalDate birthYear = LocalDate.of(Integer.parseInt(splitRide.next()), 1, 1);
-
-    Gender gender = Integer.parseInt(splitRide.next()) == 1 ? Gender.MALE : Gender.FEMALE;
-
-    return Ride.create(bikeId + startedAt.hashCode(), stationId, startedAt, userType, birthYear, gender);
+    return Ride.create(rideId, stationId);
   }
 
-  static void writeCountsPerStation(Map<String, Integer> counts, String fileName) {
-    try (PrintWriter pw = new PrintWriter(new File(fileName), UTF_8.name())) {
+  static void writeCountsPerStation(Map<String, Integer> counts, String file) {
+    try (PrintWriter pw = new PrintWriter(new File(file), UTF_8.name())) {
       counts.forEach((
           stationId, count) -> pw.write(String.format(CSV_HOUR_COUNT_WRITE_TEMPLATE, stationId, count)));
     } catch (IOException e) {

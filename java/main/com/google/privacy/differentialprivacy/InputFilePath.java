@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 
-package com.google.privacy.differentialprivacy.example;
+package com.google.privacy.differentialprivacy;
 
 /** Stores paths to the input files. */
 public final class InputFilePath {
-  static final String RIDE_STATISTICS = "tripdata.csv";
+  static final String RIDE_STATISTICS = "rides_data.csv";
 
   private InputFilePath(){}
 }

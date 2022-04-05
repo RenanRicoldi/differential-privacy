@@ -14,7 +14,7 @@
 // limitations under the License.
 //
 
-package com.google.privacy.differentialprivacy.example;
+package com.google.privacy.differentialprivacy;
 
 import java.util.Arrays;
 
@@ -28,6 +28,7 @@ public class Main {
     }
 
     Scenario scenario = Scenario.valueOf(args[0]);
+    // TODO: add more examples
     switch (scenario) {
       case COUNT_RIDES_PER_STATION:
         CountRidesPerStation.run();
