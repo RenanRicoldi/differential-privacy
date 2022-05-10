@@ -3,21 +3,19 @@ package com.google.privacy.differentialprivacy.example;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.stream.Collectors.toMap;
 
-import java.util.ArrayList;
-
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.privacy.differentialprivacy.Count;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+
 
 public class CountRidesPerStation {
   private static final String NON_PRIVATE_OUTPUT = "non_private_counts_per_station.csv";
   private static final String PRIVATE_OUTPUT = "private_counts_per_station.csv";
 
-  private static final double LN_3 = Math.log(3);
+  private static final double epsilon = 13.814;
 
   private CountRidesPerStation() {}
 
@@ -32,12 +30,22 @@ public class CountRidesPerStation {
   }
 
   private static String formatKey(int stationId, int hour, Gender gender) {
-    return String.format("%07d-%02d-%s", stationId, hour, gender);
+    return String.format("%02dh", hour);
   }
+
+  // private static String formatKey(int hour, Gender gender) {
+  //   return String.format("%02d", hour);
+  // }
+
+  // private static String formatKey(int stationId, int hour, Gender gender) {
+  //   return String.format("%07d-%02d", stationId, hour);
+  // }
 
   private static ImmutableSortedMap<String, Integer> getNonPrivateCounts(
       Collection<Ride> rides) {
     Map<String, Integer> counts = new TreeMap<>();
+
+    System.out.println(rides.size());
 
     rides.forEach(r -> {
       String key = formatKey(r.stationId(), r.startTime().getHour(), r.gender());
@@ -46,16 +54,27 @@ public class CountRidesPerStation {
 
       if(counts.containsKey(key)) {
         numberOfRides = counts.get(key);
-      } else {
-        for(Gender gender : Gender.values()) {
-          for (int hour = 0; hour < 24; hour++) {
-            counts.put(formatKey(r.stationId(), hour, gender), 0);
-          }
-        }
       }
 
+      // if(key.equals("10h")) {
+      //   System.out.println(numberOfRides);
+      // }
+
+      // if(counts.containsKey(key)) {
+      //   numberOfRides = counts.get(key);
+      // } else {
+      //   // for(Gender gender : Gender.values()) {
+      //     // for (int hour = 0; hour < 24; hour++) {
+      //       counts.put(formatKey(r.stationId(), 0, Gender.MALE), 0);
+      //     // }
+      //   // }
+      // }
+
       counts.put(key, numberOfRides + 1);
+
+      System.out.printf("%s - %d\n", key, numberOfRides + 1);
     });
+
 
     return ImmutableSortedMap.copyOf(counts);
   }
@@ -68,16 +87,16 @@ public class CountRidesPerStation {
       String key = formatKey(v.stationId(), v.startTime().getHour(), v.gender());
 
       if(!dpCounts.containsKey(key)) {
-        for(Gender gender : Gender.values()) {
-          for (int hour = 0; hour < 24; hour++) {
+        // for(Gender gender : Gender.values()) {
+          // for (int hour = 0; hour < 24; hour++) {
             Count dpCount = Count.builder()
-              .epsilon(LN_3)
+              .epsilon(epsilon)
               .maxPartitionsContributed(1)
               .build();
       
-            dpCounts.put(formatKey(v.stationId(), hour, gender), dpCount);
-          }
-        }
+            dpCounts.put(key, dpCount);
+          // }
+        // }
       }
 
       dpCounts.get(key).increment();

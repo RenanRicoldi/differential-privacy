@@ -25,15 +25,10 @@ import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 /** Reads visitors' data and prints statistics. */
@@ -50,9 +45,9 @@ class IOUtils {
           Resources.readLines(Resources.getResource(fileName), UTF_8);
 
       return rideAsText.stream()
-          .skip(1)
-          .map(IOUtils::convertLineToRide)
-          .collect(toImmutableSet());
+        .skip(1)
+        .map(IOUtils::convertLineToRide)
+        .collect(toImmutableSet());
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
@@ -66,33 +61,34 @@ class IOUtils {
   private static Ride convertLineToRide(String rideAsText) {
     Iterator<String> splitRide = Splitter.on(CSV_ITEM_SEPARATOR).split(rideAsText).iterator();
 
-    splitRide.next();
-
-    LocalTime startedAt = LocalTime.parse((splitRide.next().split(" ")[1]).split("\\.")[0]);
-
-    splitRide.next();
-
     String station = splitRide.next();
-
     int stationId = Integer.parseInt(station.equals("NULL") ? "0" : station);
 
-    for(int i = 0; i < 7; i++) {
-      splitRide.next();
-    }
+    LocalTime startedAt = LocalTime.parse(splitRide.next() + ":00:00");
 
-    String bikeId = splitRide.next();
+    Gender gender = splitRide.next().equals("MALE") ? Gender.MALE : Gender.FEMALE;
 
     String userType = splitRide.next();
 
     LocalDate birthYear = LocalDate.of(Integer.parseInt(splitRide.next()), 1, 1);
 
-    Gender gender = Integer.parseInt(splitRide.next()) == 1 ? Gender.MALE : Gender.FEMALE;
+    Ride ride = Ride.create(
+      splitRide.toString(),
+      stationId,
+      startedAt,
+      userType,
+      birthYear,
+      gender
+    );
 
-    return Ride.create(bikeId + startedAt.hashCode(), stationId, startedAt, userType, birthYear, gender);
+    System.out.println(ride.id());
+
+    return ride;
   }
 
   static void writeCountsPerStation(Map<String, Integer> counts, String fileName) {
     try (PrintWriter pw = new PrintWriter(new File(fileName), UTF_8.name())) {
+      pw.write("identifier,count\n");
       counts.forEach((
           stationId, count) -> pw.write(String.format(CSV_HOUR_COUNT_WRITE_TEMPLATE, stationId, count)));
     } catch (IOException e) {
