@@ -12,10 +12,10 @@ import java.util.TreeMap;
 
 
 public class CountRidesPerStation {
-  private static final String NON_PRIVATE_OUTPUT = "non_private_counts_per_station.csv";
-  private static final String PRIVATE_OUTPUT = "private_counts_per_station.csv";
+  private static final String NON_PRIVATE_OUTPUT = "non_private_counts_per_station_by_hour.csv";
+  private static final String PRIVATE_OUTPUT = "private_counts_per_station_by_hour.csv";
 
-  private static final double epsilon = 13.814;
+  private static final double epsilon = 0.008;
 
   private CountRidesPerStation() {}
 
@@ -29,17 +29,17 @@ public class CountRidesPerStation {
     IOUtils.writeCountsPerStation(privateCounts, PRIVATE_OUTPUT);
   }
 
-  private static String formatKey(int stationId, int hour, Gender gender) {
-    return String.format("%02dh", hour);
-  }
+  // private static String formatKey(int stationId, int hour, Gender gender) {
+  //   return String.format("%02dh", hour);
+  // }
 
   // private static String formatKey(int hour, Gender gender) {
   //   return String.format("%02d", hour);
   // }
 
-  // private static String formatKey(int stationId, int hour, Gender gender) {
-  //   return String.format("%07d-%02d", stationId, hour);
-  // }
+  private static String formatKey(int stationId, int hour, Gender gender) {
+    return String.format("%07d-%02dh", stationId, hour);
+  }
 
   private static ImmutableSortedMap<String, Integer> getNonPrivateCounts(
       Collection<Ride> rides) {
@@ -56,23 +56,17 @@ public class CountRidesPerStation {
         numberOfRides = counts.get(key);
       }
 
-      // if(key.equals("10h")) {
-      //   System.out.println(numberOfRides);
-      // }
-
       // if(counts.containsKey(key)) {
       //   numberOfRides = counts.get(key);
       // } else {
       //   // for(Gender gender : Gender.values()) {
       //     // for (int hour = 0; hour < 24; hour++) {
-      //       counts.put(formatKey(r.stationId(), 0, Gender.MALE), 0);
+      //       counts.put(key, 0);
       //     // }
       //   // }
       // }
 
       counts.put(key, numberOfRides + 1);
-
-      System.out.printf("%s - %d\n", key, numberOfRides + 1);
     });
 
 

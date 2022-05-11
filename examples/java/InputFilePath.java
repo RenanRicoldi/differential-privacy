@@ -18,7 +18,7 @@ package com.google.privacy.differentialprivacy.example;
 
 /** Stores paths to the input files. */
 public final class InputFilePath {
-  static final String RIDE_STATISTICS = "formated-data-100k.csv";
+  static final String RIDE_STATISTICS = "formated-data-41k.csv";
 
   private InputFilePath(){}
 }
