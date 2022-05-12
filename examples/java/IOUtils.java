@@ -66,7 +66,7 @@ class IOUtils {
 
     LocalTime startedAt = LocalTime.parse(splitRide.next() + ":00:00");
 
-    Gender gender = splitRide.next().equals("MALE") ? Gender.MALE : Gender.FEMALE;
+    Gender gender = splitRide.next().equals("FEMALE") ? Gender.FEMALE : Gender.MALE;
 
     String userType = splitRide.next();
 
@@ -80,8 +80,6 @@ class IOUtils {
       birthYear,
       gender
     );
-
-    System.out.println(ride.id());
 
     return ride;
   }

@@ -12,8 +12,8 @@ import java.util.TreeMap;
 
 
 public class CountRidesPerStation {
-  private static final String NON_PRIVATE_OUTPUT = "non_private_counts_per_station_by_hour.csv";
-  private static final String PRIVATE_OUTPUT = "private_counts_per_station_by_hour.csv";
+  private static final String NON_PRIVATE_OUTPUT = "non_private_counts_woman_per_station_by_hour.csv";
+  private static final String PRIVATE_OUTPUT = "private_counts_woman_per_station_by_hour.csv";
 
   private static final double epsilon = 0.008;
 
@@ -41,13 +41,13 @@ public class CountRidesPerStation {
     return String.format("%07d-%02dh", stationId, hour);
   }
 
-  private static ImmutableSortedMap<String, Integer> getNonPrivateCounts(
-      Collection<Ride> rides) {
+  private static ImmutableSortedMap<String, Integer> getNonPrivateCounts(Collection<Ride> rides) {
     Map<String, Integer> counts = new TreeMap<>();
 
-    System.out.println(rides.size());
-
     rides.forEach(r -> {
+      if(!r.gender().equals(Gender.FEMALE))
+        return;
+    
       String key = formatKey(r.stationId(), r.startTime().getHour(), r.gender());
 
       int numberOfRides = 0;
@@ -78,6 +78,9 @@ public class CountRidesPerStation {
     Map<String, Count> dpCounts = new HashMap<>();
 
     rides.forEach(v -> {
+      if(!v.gender().equals(Gender.FEMALE))
+        return;
+
       String key = formatKey(v.stationId(), v.startTime().getHour(), v.gender());
 
       if(!dpCounts.containsKey(key)) {
